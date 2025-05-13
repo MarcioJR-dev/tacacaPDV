@@ -5,6 +5,10 @@ import Layout from './components/Layout/Layout';
 import ListaClientes from './pages/Clientes/ListaClientes';
 import NovoCliente from './pages/Clientes/NovoCliente';
 import EditarCliente from './pages/Clientes/EditarCliente';
+import ListaPedidos from './pages/Pedidos/ListaPedidos';
+import FormPedido from './pages/Pedidos/FormPedido';
+import ListaDividas from './pages/Dividas/ListaDividas';
+import FormDivida from './pages/Dividas/FormDivida';
 
 const theme = createTheme({
   palette: {
@@ -26,7 +30,12 @@ function App() {
             <Route path="/clientes" element={<ListaClientes />} />
             <Route path="/clientes/novo" element={<NovoCliente />} />
             <Route path="/clientes/editar/:id" element={<EditarCliente />} />
-            {/* Outras rotas serão adicionadas aqui */}
+            <Route path="/pedidos" element={<ListaPedidos />} />
+            <Route path="/pedidos/novo" element={<FormPedido />} />
+            <Route path="/pedidos/editar/:id" element={<FormPedido />} />
+            <Route path="/dividas" element={<ListaDividas />} />
+            <Route path="/dividas/novo" element={<FormDivida />} />
+            <Route path="/dividas/editar/:id" element={<FormDivida />} />
           </Routes>
         </Layout>
       </Router>

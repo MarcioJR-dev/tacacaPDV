@@ -5,21 +5,27 @@ const Divida = sequelize.define('Divida', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
-    autoIncrement: true
+    autoIncrement: true,
+    allowNull: false
   },
   valor: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false
   },
-  notasDivida: {
-    type: DataTypes.TEXT
-  },
   dataPagamento: {
-    type: DataTypes.DATE
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  status: {
+    type: DataTypes.ENUM('Pendente', 'Pago'),
+    defaultValue: 'Pendente'
+  },
+  notasDivida: {
+    type: DataTypes.TEXT,
+    allowNull: true
   },
   ClienteId: {
     type: DataTypes.INTEGER,
-    allowNull: true,
     references: {
       model: 'clientes',
       key: 'id'
@@ -27,7 +33,8 @@ const Divida = sequelize.define('Divida', {
   }
 }, {
   tableName: 'dividas',
-  timestamps: true
+  timestamps: true,
+  paranoid: true
 });
 
 module.exports = Divida;
