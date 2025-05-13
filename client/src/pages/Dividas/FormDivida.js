@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Box,
@@ -16,18 +16,12 @@ const FormDivida = () => {
   const [divida, setDivida] = useState({
     ClienteId: '',
     valor: '',
-    notasDivida: ''
+    notasDivida: '',
+    status: 'Pendente' // Adicionado status inicial
   });
   const [clientes, setClientes] = useState([]);
   const navigate = useNavigate();
   const { id } = useParams();
-
-  useEffect(() => {
-    carregarClientes();
-    if (id) {
-      carregarDivida();
-    }
-  }, [id]);
 
   const carregarClientes = async () => {
     try {
@@ -38,14 +32,21 @@ const FormDivida = () => {
     }
   };
 
-  const carregarDivida = async () => {
+  const carregarDivida = useCallback(async () => {
     try {
       const response = await api.get(`/dividas/${id}`);
       setDivida(response.data);
     } catch (error) {
       console.error('Erro ao carregar dívida:', error);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    carregarClientes();
+    if (id) {
+      carregarDivida();
+    }
+  }, [id, carregarDivida]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -64,7 +65,7 @@ const FormDivida = () => {
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
       <Grid container spacing={2}>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <FormControl fullWidth>
             <InputLabel>Cliente</InputLabel>
             <Select
@@ -80,7 +81,7 @@ const FormDivida = () => {
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <TextField
             fullWidth
             label="Valor"
@@ -90,7 +91,20 @@ const FormDivida = () => {
             required
           />
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={12}>
+          <FormControl fullWidth>
+            <InputLabel>Status</InputLabel>
+            <Select
+              value={divida.status}
+              onChange={(e) => setDivida({ ...divida, status: e.target.value })}
+              required
+            >
+              <MenuItem value="Pendente">Pendente</MenuItem>
+              <MenuItem value="Pago">Pago</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid size={12}>
           <TextField
             fullWidth
             label="Notas da Dívida"
@@ -100,7 +114,7 @@ const FormDivida = () => {
             onChange={(e) => setDivida({ ...divida, notasDivida: e.target.value })}
           />
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Button type="submit" variant="contained" color="primary">
             Salvar
           </Button>

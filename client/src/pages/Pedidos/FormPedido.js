@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Box,
@@ -8,7 +8,8 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Grid
+  Grid,
+  Autocomplete
 } from '@mui/material';
 import api from '../../services/api';
 
@@ -20,15 +21,21 @@ const FormPedido = () => {
     notasPedido: ''
   });
   const [clientes, setClientes] = useState([]);
+  const [selectedCliente, setSelectedCliente] = useState(null);
   const navigate = useNavigate();
   const { id } = useParams();
 
-  useEffect(() => {
-    carregarClientes();
-    if (id) {
-      carregarPedido();
+  const carregarPedido = useCallback(async () => {
+    try {
+      const response = await api.get(`/pedidos/${id}`);
+      setPedido(response.data);
+      // Find and set the selected client when loading an existing pedido
+      const clienteAtual = clientes.find(c => c.id === response.data.ClienteId);
+      setSelectedCliente(clienteAtual || null);
+    } catch (error) {
+      console.error('Erro ao carregar pedido:', error);
     }
-  }, [id]);
+  }, [id, clientes]);
 
   const carregarClientes = async () => {
     try {
@@ -39,14 +46,12 @@ const FormPedido = () => {
     }
   };
 
-  const carregarPedido = async () => {
-    try {
-      const response = await api.get(`/pedidos/${id}`);
-      setPedido(response.data);
-    } catch (error) {
-      console.error('Erro ao carregar pedido:', error);
+  useEffect(() => {
+    carregarClientes();
+    if (id) {
+      carregarPedido();
     }
-  };
+  }, [id, carregarPedido]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -66,20 +71,24 @@ const FormPedido = () => {
     <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
       <Grid container spacing={2}>
         <Grid item xs={12}>
-          <FormControl fullWidth>
-            <InputLabel>Cliente</InputLabel>
-            <Select
-              value={pedido.ClienteId}
-              onChange={(e) => setPedido({ ...pedido, ClienteId: e.target.value })}
-              required
-            >
-              {clientes.map((cliente) => (
-                <MenuItem key={cliente.id} value={cliente.id}>
-                  {cliente.nome}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <Autocomplete
+            value={selectedCliente}
+            onChange={(event, newValue) => {
+              setSelectedCliente(newValue);
+              setPedido({ ...pedido, ClienteId: newValue?.id || '' });
+            }}
+            options={clientes}
+            getOptionLabel={(option) => option.nome || ''}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Cliente"
+                required
+                fullWidth
+              />
+            )}
+          />
         </Grid>
         <Grid item xs={12}>
           <TextField

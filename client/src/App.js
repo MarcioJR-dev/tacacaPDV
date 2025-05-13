@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material';
 import Layout from './components/Layout/Layout';
+import Dashboard from './pages/Dashboard/Dashboard';
 import ListaClientes from './pages/Clientes/ListaClientes';
 import NovoCliente from './pages/Clientes/NovoCliente';
 import EditarCliente from './pages/Clientes/EditarCliente';
@@ -27,6 +28,7 @@ function App() {
       <Router>
         <Layout>
           <Routes>
+            <Route path="/" element={<Dashboard />} />
             <Route path="/clientes" element={<ListaClientes />} />
             <Route path="/clientes/novo" element={<NovoCliente />} />
             <Route path="/clientes/editar/:id" element={<EditarCliente />} />

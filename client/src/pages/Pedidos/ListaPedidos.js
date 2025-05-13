@@ -9,7 +9,6 @@ import {
   TableRow,
   Paper,
   Button,
-  TextField,
   Box
 } from '@mui/material';
 import api from '../../services/api';
@@ -28,6 +27,17 @@ const ListaPedidos = () => {
       setPedidos(response.data);
     } catch (error) {
       console.error('Erro ao carregar pedidos:', error);
+    }
+  };
+
+  const handleExcluir = async (id) => {
+    if (window.confirm('Tem certeza que deseja excluir este pedido?')) {
+      try {
+        await api.delete(`/pedidos/${id}`);
+        carregarPedidos(); // Recarrega a lista após excluir
+      } catch (error) {
+        console.error('Erro ao excluir pedido:', error);
+      }
     }
   };
 

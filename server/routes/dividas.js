@@ -70,4 +70,18 @@ router.patch('/:id/pagar', async (req, res) => {
   }
 });
 
+router.delete('/:id', async (req, res) => {
+  try {
+    const divida = await Divida.findByPk(req.params.id);
+    if (divida) {
+      await divida.destroy();
+      res.json({ message: 'Dívida excluída com sucesso' });
+    } else {
+      res.status(404).json({ message: 'Dívida não encontrada' });
+    }
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 module.exports = router;

@@ -9,8 +9,7 @@ import {
   TableRow,
   Paper,
   Button,
-  Box,
-  Chip
+  Box
 } from '@mui/material';
 import api from '../../services/api';
 
@@ -31,12 +30,22 @@ const ListaDividas = () => {
     }
   };
 
-  const handlePagar = async (id) => {
-    try {
-      await api.patch(`/dividas/${id}/pagar`);
-      carregarDividas();
-    } catch (error) {
-      console.error('Erro ao pagar dívida:', error);
+  const handleExcluir = async (id) => {
+    if (window.confirm('Tem certeza que deseja excluir esta dívida?')) {
+      try {
+        const response = await api.delete(`/dividas/${id}`);
+        if (response.status === 200) {
+          await carregarDividas();
+          alert('Dívida excluída com sucesso!');
+        }
+      } catch (error) {
+        console.error('Erro ao excluir dívida:', error);
+        if (error.response && error.response.status === 404) {
+          alert('Dívida não encontrada. Talvez já tenha sido excluída.');
+        } else {
+          alert('Erro ao excluir dívida. Por favor, tente novamente.');
+        }
+      }
     }
   };
 
@@ -60,7 +69,7 @@ const ListaDividas = () => {
               <TableCell>Cliente</TableCell>
               <TableCell>Valor</TableCell>
               <TableCell>Status</TableCell>
-              <TableCell>Data de Pagamento</TableCell>
+              <TableCell>Notas</TableCell>
               <TableCell>Ações</TableCell>
             </TableRow>
           </TableHead>
@@ -69,36 +78,24 @@ const ListaDividas = () => {
               <TableRow key={divida.id}>
                 <TableCell>{divida.Cliente?.nome}</TableCell>
                 <TableCell>R$ {divida.valor}</TableCell>
+                <TableCell>{divida.status}</TableCell>
+                <TableCell>{divida.notasDivida}</TableCell>
                 <TableCell>
-                  <Chip 
-                    label={divida.status}
-                    color={divida.status === 'Pendente' ? 'warning' : 'success'}
-                  />
-                </TableCell>
-                <TableCell>
-                  {divida.dataPagamento ? new Date(divida.dataPagamento).toLocaleDateString() : '-'}
-                </TableCell>
-                <TableCell>
-                  {divida.status === 'Pendente' && (
-                    <>
-                      <Button 
-                        size="small" 
-                        color="success"
-                        onClick={() => handlePagar(divida.id)}
-                        sx={{ mr: 1 }}
-                      >
-                        Pagar
-                      </Button>
-                      <Button 
-                        size="small" 
-                        color="primary"
-                        onClick={() => navigate(`/dividas/editar/${divida.id}`)}
-                        sx={{ mr: 1 }}
-                      >
-                        Editar
-                      </Button>
-                    </>
-                  )}
+                  <Button 
+                    size="small" 
+                    color="primary"
+                    onClick={() => navigate(`/dividas/editar/${divida.id}`)}
+                    sx={{ mr: 1 }}
+                  >
+                    Editar
+                  </Button>
+                  <Button 
+                    size="small" 
+                    color="error"
+                    onClick={() => handleExcluir(divida.id)}
+                  >
+                    Excluir
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
