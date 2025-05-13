@@ -34,7 +34,10 @@ const Divida = sequelize.define('Divida', {
 }, {
   tableName: 'dividas',
   timestamps: true,
-  paranoid: true
+  paranoid: true,
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
 });
 
 module.exports = Divida;

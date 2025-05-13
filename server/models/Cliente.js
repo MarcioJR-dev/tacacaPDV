@@ -23,7 +23,10 @@ const Cliente = sequelize.define('Cliente', {
 }, {
   tableName: 'clientes',
   timestamps: true,
-  paranoid: true
+  paranoid: true,
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
 });
 
 module.exports = Cliente;

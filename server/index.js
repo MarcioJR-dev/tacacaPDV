@@ -5,8 +5,9 @@ const cors = require('cors');
 app.use(cors());
 app.use(express.json());
 
-// Make sure the route is registered correctly
+// Rotas
 app.use('/api/clientes', require('./routes/clientes'));
+app.use('/api/produtos', require('./routes/produtos')); // Corrigido para usar o arquivo produtos.js
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

@@ -9,9 +9,84 @@ import {
   TableRow,
   Paper,
   Button,
-  Box
+  Box,
+  Typography,
+  Collapse,
+  IconButton
 } from '@mui/material';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import api from '../../services/api';
+
+const Row = ({ pedido, onEdit }) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <TableRow>
+        <TableCell>
+          <IconButton
+            size="small"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </TableCell>
+        <TableCell>{new Date(pedido.data).toLocaleDateString()}</TableCell>
+        <TableCell>{pedido.Cliente?.nome || 'Cliente não encontrado'}</TableCell>
+        <TableCell>R$ {pedido.valorTotal.toFixed(2)}</TableCell>
+        <TableCell>{pedido.formaPagamento}</TableCell>
+        <TableCell>
+          <Button 
+            size="small" 
+            color="primary"
+            onClick={() => onEdit(pedido.id)}
+          >
+            Editar
+          </Button>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <Box sx={{ margin: 1 }}>
+              <Typography variant="h6" gutterBottom component="div">
+                Produtos
+              </Typography>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Produto</TableCell>
+                    <TableCell>Quantidade</TableCell>
+                    <TableCell>Preço Unitário</TableCell>
+                    <TableCell>Subtotal</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {pedido.Produtos?.map((produto) => (
+                    <TableRow key={produto.id}>
+                      <TableCell>{produto.nome}</TableCell>
+                      <TableCell>{produto.PedidoProduto.quantidade}</TableCell>
+                      <TableCell>R$ {produto.preco.toFixed(2)}</TableCell>
+                      <TableCell>
+                        R$ {(produto.preco * produto.PedidoProduto.quantidade).toFixed(2)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              {pedido.notasPedido && (
+                <Typography variant="subtitle2" sx={{ mt: 2 }}>
+                  Notas: {pedido.notasPedido}
+                </Typography>
+              )}
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </>
+  );
+};
 
 const ListaPedidos = () => {
   const [pedidos, setPedidos] = useState([]);
@@ -30,21 +105,13 @@ const ListaPedidos = () => {
     }
   };
 
-  const handleExcluir = async (id) => {
-    if (window.confirm('Tem certeza que deseja excluir este pedido?')) {
-      try {
-        await api.delete(`/pedidos/${id}`);
-        carregarPedidos(); // Recarrega a lista após excluir
-      } catch (error) {
-        console.error('Erro ao excluir pedido:', error);
-      }
-    }
+  const handleEdit = (id) => {
+    navigate(`/pedidos/editar/${id}`);
   };
 
   return (
     <Box>
-      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between' }}>
-        <h2>Pedidos</h2>
+      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end' }}>
         <Button 
           variant="contained" 
           color="primary"
@@ -58,8 +125,9 @@ const ListaPedidos = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Cliente</TableCell>
+              <TableCell />
               <TableCell>Data</TableCell>
+              <TableCell>Cliente</TableCell>
               <TableCell>Valor Total</TableCell>
               <TableCell>Forma de Pagamento</TableCell>
               <TableCell>Ações</TableCell>
@@ -67,28 +135,11 @@ const ListaPedidos = () => {
           </TableHead>
           <TableBody>
             {pedidos.map((pedido) => (
-              <TableRow key={pedido.id}>
-                <TableCell>{pedido.Cliente?.nome}</TableCell>
-                <TableCell>{new Date(pedido.data).toLocaleDateString()}</TableCell>
-                <TableCell>R$ {pedido.valorTotal}</TableCell>
-                <TableCell>{pedido.formaPagamento}</TableCell>
-                <TableCell>
-                  <Button 
-                    size="small" 
-                    color="primary"
-                    onClick={() => navigate(`/pedidos/editar/${pedido.id}`)}
-                  >
-                    Editar
-                  </Button>
-                  <Button 
-                    size="small" 
-                    color="error"
-                    onClick={() => handleExcluir(pedido.id)}
-                  >
-                    Excluir
-                  </Button>
-                </TableCell>
-              </TableRow>
+              <Row 
+                key={pedido.id} 
+                pedido={pedido} 
+                onEdit={handleEdit}
+              />
             ))}
           </TableBody>
         </Table>

@@ -5,6 +5,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import MoneyOffIcon from '@mui/icons-material/MoneyOff';
+import InventoryIcon from '@mui/icons-material/Inventory';
 
 const drawerWidth = 240;
 
@@ -12,6 +13,7 @@ const Layout = ({ children }) => {
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
     { text: 'Clientes', icon: <PeopleIcon />, path: '/clientes' },
+    { text: 'Produtos', icon: <InventoryIcon />, path: '/produtos' },
     { text: 'Pedidos', icon: <ShoppingCartIcon />, path: '/pedidos' },
     { text: 'Dívidas', icon: <MoneyOffIcon />, path: '/dividas' }
   ];

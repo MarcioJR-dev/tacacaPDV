@@ -10,6 +10,8 @@ import ListaPedidos from './pages/Pedidos/ListaPedidos';
 import FormPedido from './pages/Pedidos/FormPedido';
 import ListaDividas from './pages/Dividas/ListaDividas';
 import FormDivida from './pages/Dividas/FormDivida';
+import ListaProdutos from './pages/Produtos/ListaProdutos';
+import FormProduto from './pages/Produtos/FormProduto';
 
 const theme = createTheme({
   palette: {
@@ -38,6 +40,9 @@ function App() {
             <Route path="/dividas" element={<ListaDividas />} />
             <Route path="/dividas/novo" element={<FormDivida />} />
             <Route path="/dividas/editar/:id" element={<FormDivida />} />
+            <Route path="/produtos" element={<ListaProdutos />} />
+            <Route path="/produtos/novo" element={<FormProduto />} />
+            <Route path="/produtos/editar/:id" element={<FormProduto />} />
           </Routes>
         </Layout>
       </Router>
