@@ -88,23 +88,22 @@ const ListaClientes = () => {
         <Table>
           <TableHead>
             <TableRow>
+              <TableCell>Número</TableCell>
               <TableCell>Nome</TableCell>
-              <TableCell>Endereço</TableCell>
-              <TableCell>Notas</TableCell>
               <TableCell>Ações</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {clientesFiltrados.map((cliente) => (
+            {clientes.map((cliente) => (
               <TableRow key={cliente.id}>
+                <TableCell>{cliente.numero}</TableCell>
                 <TableCell>{cliente.nome}</TableCell>
-                <TableCell>{cliente.endereco}</TableCell>
-                <TableCell>{cliente.notas}</TableCell>
                 <TableCell>
                   <Button 
                     size="small" 
                     color="primary"
                     onClick={() => navigate(`/clientes/editar/${cliente.id}`)}
+                    sx={{ mr: 1 }}
                   >
                     Editar
                   </Button>

@@ -41,7 +41,7 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
-    const { cliente_id, valor, dataVencimento, status, descricao } = req.body;
+    const { cliente_id, valor, data_vencimento, status, descricao } = req.body;
 
     // Validações
     if (!cliente_id) {
@@ -52,7 +52,7 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ message: 'Valor inválido' });
     }
 
-    if (!dataVencimento) {
+    if (!data_vencimento) {
       return res.status(400).json({ message: 'Data de vencimento é obrigatória' });
     }
 
@@ -73,7 +73,7 @@ router.post('/', async (req, res) => {
       const novaDivida = await Divida.create({
         cliente_id: parseInt(cliente_id),
         valor: parseFloat(valor),
-        dataVencimento: new Date(dataVencimento),
+        data_vencimento: new Date(data_vencimento),
         status: status ? status.toLowerCase() : 'pendente',
         descricao: descricao || null
       });
@@ -98,7 +98,7 @@ router.post('/', async (req, res) => {
 router.patch('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { valor, dataVencimento, status, descricao } = req.body;
+    const { valor, data_vencimento, status, descricao } = req.body;
 
     const divida = await Divida.findByPk(id);
     if (!divida) {
@@ -112,7 +112,7 @@ router.patch('/:id', async (req, res) => {
 
     const dadosAtualizados = {
       ...(valor && { valor: parseFloat(valor) }),
-      ...(dataVencimento && { dataVencimento: new Date(dataVencimento) }),
+      ...(data_vencimento && { data_vencimento: new Date(data_vencimento) }),
       ...(status && { status: status.toLowerCase() }),
       ...(descricao !== undefined && { descricao })
     };
@@ -130,8 +130,7 @@ router.patch('/:id/pagar', async (req, res) => {
     const divida = await Divida.findByPk(req.params.id);
     if (divida) {
       await divida.update({
-        status: 'Pago',
-        dataPagamento: new Date()
+        status: 'pago'
       });
       res.json(divida);
     } else {

@@ -16,39 +16,39 @@ module.exports = {
         type: Sequelize.DECIMAL(10, 2),
         allowNull: false
       },
-      dataPagamento: {
+      data_vencimento: {
         type: Sequelize.DATE,
-        allowNull: true
+        allowNull: false
       },
       status: {
-        type: Sequelize.ENUM('Pendente', 'Pago'),
-        defaultValue: 'Pendente'
+        type: Sequelize.ENUM('pendente', 'pago', 'atrasado'),
+        defaultValue: 'pendente'
       },
-      notasDivida: {
+      descricao: {
         type: Sequelize.TEXT,
         allowNull: true
       },
-      ClienteId: {
+      cliente_id: {
         type: Sequelize.INTEGER,
-        allowNull: true,
+        allowNull: false,
         references: {
           model: 'clientes',
           key: 'id'
         },
-        onDelete: 'SET NULL',
+        onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       },
-      createdAt: {
+      created_at: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
-      updatedAt: {
+      updated_at: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
-      deletedAt: {
+      deleted_at: {
         type: Sequelize.DATE,
         allowNull: true
       }

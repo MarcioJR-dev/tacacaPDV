@@ -9,7 +9,8 @@ import {
   TableRow,
   Paper,
   Button,
-  Box
+  Box,
+  Typography
 } from '@mui/material';
 import api from '../../services/api';
 
@@ -49,10 +50,21 @@ const ListaDividas = () => {
     }
   };
 
+  const formatarData = (data) => {
+    if (!data) return '';
+    return new Date(data).toLocaleDateString('pt-BR');
+  };
+
+  const formatarValor = (valor) => {
+    return parseFloat(valor).toFixed(2);
+  };
+
   return (
     <Box>
-      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between' }}>
-        <h2>Dívidas</h2>
+      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h5" color="primary">
+          Dívidas
+        </Typography>
         <Button 
           variant="contained" 
           color="primary"
@@ -68,19 +80,21 @@ const ListaDividas = () => {
             <TableRow>
               <TableCell>Cliente</TableCell>
               <TableCell>Valor</TableCell>
+              <TableCell>Vencimento</TableCell>
               <TableCell>Status</TableCell>
-              <TableCell>Notas</TableCell>
-              <TableCell>Ações</TableCell>
+              <TableCell>Descrição</TableCell>
+              <TableCell align="center">Ações</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {dividas.map((divida) => (
               <TableRow key={divida.id}>
                 <TableCell>{divida.cliente?.nome}</TableCell>
-                <TableCell>R$ {divida.valor}</TableCell>
+                <TableCell>R$ {formatarValor(divida.valor)}</TableCell>
+                <TableCell>{formatarData(divida.data_vencimento)}</TableCell>
                 <TableCell>{divida.status}</TableCell>
                 <TableCell>{divida.descricao}</TableCell>
-                <TableCell>
+                <TableCell align="center">
                   <Button 
                     size="small" 
                     color="primary"

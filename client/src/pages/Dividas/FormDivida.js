@@ -19,7 +19,7 @@ const FormDivida = () => {
   const [divida, setDivida] = useState({
     cliente_id: '',
     valor: '',
-    dataVencimento: '',
+    data_vencimento: '',
     status: 'pendente',
     descricao: ''
   });
@@ -46,7 +46,7 @@ const FormDivida = () => {
       setDivida({
         cliente_id: response.data.cliente_id,
         valor: response.data.valor,
-        dataVencimento: response.data.dataVencimento.split('T')[0],
+        data_vencimento: response.data.data_vencimento.split('T')[0],
         status: response.data.status,
         descricao: response.data.descricao || ''
       });
@@ -81,7 +81,7 @@ const FormDivida = () => {
         return;
       }
 
-      if (!divida.dataVencimento) {
+      if (!divida.data_vencimento) {
         setError('Data de vencimento é obrigatória');
         return;
       }
@@ -90,7 +90,7 @@ const FormDivida = () => {
       const dividaParaEnviar = {
         cliente_id: parseInt(divida.cliente_id),
         valor: parseFloat(divida.valor),
-        dataVencimento: new Date(divida.dataVencimento).toISOString(),
+        data_vencimento: new Date(divida.data_vencimento).toISOString(),
         status: divida.status.toLowerCase(),
         descricao: divida.descricao || null
       };
@@ -165,10 +165,10 @@ const FormDivida = () => {
               fullWidth
               label="Data de Vencimento"
               type="date"
-              value={divida.dataVencimento}
-              onChange={(e) => setDivida({ ...divida, dataVencimento: e.target.value })}
+              value={divida.data_vencimento}
+              onChange={(e) => setDivida({ ...divida, data_vencimento: e.target.value })}
               required
-              error={error && !divida.dataVencimento}
+              error={error && !divida.data_vencimento}
               InputLabelProps={{ shrink: true }}
             />
           </Grid>
@@ -203,15 +203,7 @@ const FormDivida = () => {
               color="primary"
               disabled={loading}
             >
-              {id ? 'Atualizar' : 'Salvar'}
-            </Button>
-            <Button 
-              variant="outlined" 
-              onClick={() => navigate('/dividas')}
-              sx={{ ml: 2 }}
-              disabled={loading}
-            >
-              Cancelar
+              {loading ? 'Salvando...' : (id ? 'Atualizar' : 'Criar')}
             </Button>
           </Grid>
         </Grid>

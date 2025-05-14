@@ -12,9 +12,10 @@ module.exports = (sequelize) => {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false
     },
-    dataVencimento: {
+    data_vencimento: {
       type: DataTypes.DATE,
-      allowNull: false
+      allowNull: false,
+      field: 'data_vencimento'
     },
     status: {
       type: DataTypes.ENUM('pendente', 'pago', 'atrasado'),
@@ -30,7 +31,8 @@ module.exports = (sequelize) => {
       references: {
         model: 'clientes',
         key: 'id'
-      }
+      },
+      field: 'cliente_id'
     }
   }, {
     tableName: 'dividas',
@@ -41,6 +43,13 @@ module.exports = (sequelize) => {
     paranoid: true,
     deletedAt: 'deleted_at'
   });
+
+  Divida.associate = (models) => {
+    Divida.belongsTo(models.Cliente, {
+      foreignKey: 'cliente_id',
+      as: 'cliente'
+    });
+  };
 
   return Divida;
 };
