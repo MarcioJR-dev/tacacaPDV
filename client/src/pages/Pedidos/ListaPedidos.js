@@ -17,6 +17,7 @@ import {
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import api from '../../services/api';
+import AddIcon from '@mui/icons-material/Add';
 
 const formatarValor = (valor) => {
   const valorNumerico = parseFloat(valor);
@@ -33,6 +34,7 @@ const Row = ({ pedido, onEdit }) => {
           <IconButton
             size="small"
             onClick={() => setOpen(!open)}
+            sx={{ color: 'primary.main' }}
           >
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
@@ -43,9 +45,10 @@ const Row = ({ pedido, onEdit }) => {
         <TableCell>{pedido.forma_pagamento}</TableCell>
         <TableCell>
           <Button 
-            size="small" 
+            variant="contained"
             color="primary"
             onClick={() => onEdit(pedido.id)}
+            sx={{ minWidth: 100 }}
           >
             Editar
           </Button>
@@ -54,35 +57,35 @@ const Row = ({ pedido, onEdit }) => {
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
           <Collapse in={open} timeout="auto" unmountOnExit>
-            <Box sx={{ margin: 1 }}>
-              <Typography variant="h6" gutterBottom component="div">
+            <Box sx={{ margin: 2 }}>
+              <Typography variant="h6" gutterBottom component="div" color="primary">
                 Produtos
               </Typography>
               <Table size="small">
                 <TableHead>
                   <TableRow>
                     <TableCell>Produto</TableCell>
-                    <TableCell>Quantidade</TableCell>
-                    <TableCell>Preço Unitário</TableCell>
-                    <TableCell>Subtotal</TableCell>
+                    <TableCell align="center">Quantidade</TableCell>
+                    <TableCell align="right">Preço Unitário</TableCell>
+                    <TableCell align="right">Subtotal</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {pedido.Produtos?.map((produto) => (
                     <TableRow key={produto.id}>
                       <TableCell>{produto.nome}</TableCell>
-                      <TableCell>{produto.PedidoProduto.quantidade}</TableCell>
-                      <TableCell>R$ {produto.preco.toFixed(2)}</TableCell>
-                      <TableCell>
-                        R$ {(produto.preco * produto.PedidoProduto.quantidade).toFixed(2)}
+                      <TableCell align="center">{produto.PedidoProduto.quantidade}</TableCell>
+                      <TableCell align="right">R$ {formatarValor(produto.preco)}</TableCell>
+                      <TableCell align="right">
+                        R$ {formatarValor(produto.preco * produto.PedidoProduto.quantidade)}
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-              {pedido.notasPedido && (
-                <Typography variant="subtitle2" sx={{ mt: 2 }}>
-                  Notas: {pedido.notasPedido}
+              {pedido.notas_pedido && (
+                <Typography variant="subtitle2" sx={{ mt: 2, color: 'text.secondary' }}>
+                  Notas: {pedido.notas_pedido}
                 </Typography>
               )}
             </Box>
@@ -117,27 +120,37 @@ const ListaPedidos = () => {
   };
 
   return (
-    <Box>
-      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end' }}>
+    <Box sx={{ p: 3 }}>
+      <Box sx={{ 
+        mb: 4, 
+        display: 'flex', 
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}>
+        <Typography variant="h4" color="primary">
+          Pedidos
+        </Typography>
         <Button 
           variant="contained" 
           color="primary"
           onClick={() => navigate('/pedidos/novo')}
+          startIcon={<AddIcon />}
+          sx={{ minWidth: 150 }}
         >
           Novo Pedido
         </Button>
       </Box>
 
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={{ mt: 2 }}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell />
+              <TableCell width={50} />
               <TableCell>Data</TableCell>
               <TableCell>Cliente</TableCell>
-              <TableCell>Valor Total</TableCell>
+              <TableCell align="right">Valor Total</TableCell>
               <TableCell>Forma de Pagamento</TableCell>
-              <TableCell>Ações</TableCell>
+              <TableCell align="center" width={120}>Ações</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

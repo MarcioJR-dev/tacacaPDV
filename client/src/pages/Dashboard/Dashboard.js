@@ -9,30 +9,51 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Button
+  Button,
+  Grid,
+  Card,
+  CardContent
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import AddIcon from '@mui/icons-material/Add';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import PeopleIcon from '@mui/icons-material/People';
+import InventoryIcon from '@mui/icons-material/Inventory';
+import MoneyOffIcon from '@mui/icons-material/MoneyOff';
 import api from '../../services/api';
-
-const formatarValor = (valor) => {
-  const valorNumerico = parseFloat(valor);
-  return isNaN(valorNumerico) ? '0.00' : valorNumerico.toFixed(2);
-};
 
 const Dashboard = () => {
   const [pedidosRecentes, setPedidosRecentes] = useState([]);
+  const [resumo, setResumo] = useState({
+    totalPedidos: 0,
+    totalClientes: 0,
+    totalProdutos: 0,
+    totalDividas: 0
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
-    carregarPedidosRecentes();
+    carregarDados();
   }, []);
 
-  const carregarPedidosRecentes = async () => {
+  const carregarDados = async () => {
     try {
-      const response = await api.get('/pedidos');
-      setPedidosRecentes(response.data);
+      const [pedidosRes, clientesRes, produtosRes, dividasRes] = await Promise.all([
+        api.get('/pedidos'),
+        api.get('/clientes'),
+        api.get('/produtos'),
+        api.get('/dividas')
+      ]);
+
+      setPedidosRecentes(pedidosRes.data.slice(0, 5)); // Últimos 5 pedidos
+      setResumo({
+        totalPedidos: pedidosRes.data.length,
+        totalClientes: clientesRes.data.length,
+        totalProdutos: produtosRes.data.length,
+        totalDividas: dividasRes.data.length
+      });
     } catch (error) {
-      console.error('Erro ao carregar pedidos:', error);
+      console.error('Erro ao carregar dados:', error);
     }
   };
 
@@ -40,26 +61,95 @@ const Dashboard = () => {
     if (window.confirm('Tem certeza que deseja excluir este pedido?')) {
       try {
         await api.delete(`/pedidos/${id}`);
-        carregarPedidosRecentes(); // Recarrega a lista após excluir
+        carregarDados();
       } catch (error) {
         console.error('Erro ao excluir pedido:', error);
       }
     }
   };
 
+  const formatarValor = (valor) => {
+    const valorNumerico = parseFloat(valor);
+    return isNaN(valorNumerico) ? '0.00' : valorNumerico.toFixed(2);
+  };
+
   return (
-    <Box>
-      <Typography variant="h4" gutterBottom>
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" color="primary" gutterBottom>
         Dashboard
       </Typography>
 
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <ShoppingCartIcon color="primary" sx={{ mr: 1 }} />
+                <Typography variant="h6" color="primary">
+                  Pedidos
+                </Typography>
+              </Box>
+              <Typography variant="h4">{resumo.totalPedidos}</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <PeopleIcon color="primary" sx={{ mr: 1 }} />
+                <Typography variant="h6" color="primary">
+                  Clientes
+                </Typography>
+              </Box>
+              <Typography variant="h4">{resumo.totalClientes}</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <InventoryIcon color="primary" sx={{ mr: 1 }} />
+                <Typography variant="h6" color="primary">
+                  Produtos
+                </Typography>
+              </Box>
+              <Typography variant="h4">{resumo.totalProdutos}</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <MoneyOffIcon color="primary" sx={{ mr: 1 }} />
+                <Typography variant="h6" color="primary">
+                  Dívidas
+                </Typography>
+              </Box>
+              <Typography variant="h4">{resumo.totalDividas}</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
       <Box sx={{ mt: 4 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-          <Typography variant="h6">Pedidos Recentes</Typography>
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          mb: 3 
+        }}>
+          <Typography variant="h5" color="primary">
+            Pedidos Recentes
+          </Typography>
           <Button 
             variant="contained" 
             color="primary"
             onClick={() => navigate('/pedidos/novo')}
+            startIcon={<AddIcon />}
+            sx={{ minWidth: 150 }}
           >
             Novo Pedido
           </Button>
@@ -71,9 +161,9 @@ const Dashboard = () => {
               <TableRow>
                 <TableCell>Cliente</TableCell>
                 <TableCell>Data</TableCell>
-                <TableCell>Valor Total</TableCell>
+                <TableCell align="right">Valor Total</TableCell>
                 <TableCell>Forma de Pagamento</TableCell>
-                <TableCell>Ações</TableCell>
+                <TableCell align="center" width={180}>Ações</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -81,21 +171,22 @@ const Dashboard = () => {
                 <TableRow key={pedido.id}>
                   <TableCell>{pedido.Cliente?.nome}</TableCell>
                   <TableCell>{new Date(pedido.data).toLocaleDateString()}</TableCell>
-                  <TableCell>R$ {formatarValor(pedido.valor_total)}</TableCell>
+                  <TableCell align="right">R$ {formatarValor(pedido.valor_total)}</TableCell>
                   <TableCell>{pedido.forma_pagamento}</TableCell>
-                  <TableCell>
+                  <TableCell align="center">
                     <Button 
-                      size="small" 
+                      variant="contained"
                       color="primary"
                       onClick={() => navigate(`/pedidos/editar/${pedido.id}`)}
-                      sx={{ mr: 1 }}
+                      sx={{ mr: 1, minWidth: 100 }}
                     >
                       Editar
                     </Button>
                     <Button 
-                      size="small" 
+                      variant="outlined"
                       color="error"
                       onClick={() => handleExcluir(pedido.id)}
+                      sx={{ minWidth: 100 }}
                     >
                       Excluir
                     </Button>
