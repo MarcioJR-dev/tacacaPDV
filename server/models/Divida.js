@@ -1,43 +1,46 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
 
-const Divida = sequelize.define('Divida', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-    allowNull: false
-  },
-  valor: {
-    type: DataTypes.DECIMAL(10, 2),
-    allowNull: false
-  },
-  dataPagamento: {
-    type: DataTypes.DATE,
-    allowNull: true
-  },
-  status: {
-    type: DataTypes.ENUM('Pendente', 'Pago'),
-    defaultValue: 'Pendente'
-  },
-  notasDivida: {
-    type: DataTypes.TEXT,
-    allowNull: true
-  },
-  ClienteId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: 'clientes',
-      key: 'id'
+module.exports = (sequelize) => {
+  const Divida = sequelize.define('Divida', {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false
+    },
+    valor: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false
+    },
+    dataVencimento: {
+      type: DataTypes.DATE,
+      allowNull: false
+    },
+    status: {
+      type: DataTypes.ENUM('pendente', 'pago', 'atrasado'),
+      defaultValue: 'pendente'
+    },
+    descricao: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    cliente_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'clientes',
+        key: 'id'
+      }
     }
-  }
-}, {
-  tableName: 'dividas',
-  timestamps: true,
-  paranoid: true,
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  deletedAt: 'deletedAt'
-});
+  }, {
+    tableName: 'dividas',
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
+    underscored: true,
+    paranoid: true,
+    deletedAt: 'deleted_at'
+  });
 
-module.exports = Divida;
+  return Divida;
+};

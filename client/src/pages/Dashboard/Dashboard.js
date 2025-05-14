@@ -14,6 +14,11 @@ import {
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 
+const formatarValor = (valor) => {
+  const valorNumerico = parseFloat(valor);
+  return isNaN(valorNumerico) ? '0.00' : valorNumerico.toFixed(2);
+};
+
 const Dashboard = () => {
   const [pedidosRecentes, setPedidosRecentes] = useState([]);
   const navigate = useNavigate();
@@ -76,8 +81,8 @@ const Dashboard = () => {
                 <TableRow key={pedido.id}>
                   <TableCell>{pedido.Cliente?.nome}</TableCell>
                   <TableCell>{new Date(pedido.data).toLocaleDateString()}</TableCell>
-                  <TableCell>R$ {pedido.valorTotal}</TableCell>
-                  <TableCell>{pedido.formaPagamento}</TableCell>
+                  <TableCell>R$ {formatarValor(pedido.valor_total)}</TableCell>
+                  <TableCell>{pedido.forma_pagamento}</TableCell>
                   <TableCell>
                     <Button 
                       size="small" 

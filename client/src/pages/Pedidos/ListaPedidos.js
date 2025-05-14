@@ -18,6 +18,11 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import api from '../../services/api';
 
+const formatarValor = (valor) => {
+  const valorNumerico = parseFloat(valor);
+  return isNaN(valorNumerico) ? '0.00' : valorNumerico.toFixed(2);
+};
+
 const Row = ({ pedido, onEdit }) => {
   const [open, setOpen] = useState(false);
 
@@ -34,8 +39,8 @@ const Row = ({ pedido, onEdit }) => {
         </TableCell>
         <TableCell>{new Date(pedido.data).toLocaleDateString()}</TableCell>
         <TableCell>{pedido.Cliente?.nome || 'Cliente não encontrado'}</TableCell>
-        <TableCell>R$ {pedido.valorTotal.toFixed(2)}</TableCell>
-        <TableCell>{pedido.formaPagamento}</TableCell>
+        <TableCell>R$ {formatarValor(pedido.valor_total)}</TableCell>
+        <TableCell>{pedido.forma_pagamento}</TableCell>
         <TableCell>
           <Button 
             size="small" 
@@ -98,7 +103,9 @@ const ListaPedidos = () => {
 
   const carregarPedidos = async () => {
     try {
+      console.log('Carregando pedidos...');
       const response = await api.get('/pedidos');
+      console.log('Pedidos carregados:', response.data);
       setPedidos(response.data);
     } catch (error) {
       console.error('Erro ao carregar pedidos:', error);
