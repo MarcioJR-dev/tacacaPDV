@@ -12,10 +12,12 @@ import {
   Box,
   Typography,
   Collapse,
-  IconButton
+  IconButton,
+  Alert
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import DeleteIcon from '@mui/icons-material/Delete';
 import api from '../../services/api';
 import AddIcon from '@mui/icons-material/Add';
 
@@ -24,7 +26,7 @@ const formatarValor = (valor) => {
   return isNaN(valorNumerico) ? '0.00' : valorNumerico.toFixed(2);
 };
 
-const Row = ({ pedido, onEdit }) => {
+const Row = ({ pedido, onEdit, onDelete }) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -44,14 +46,22 @@ const Row = ({ pedido, onEdit }) => {
         <TableCell>R$ {formatarValor(pedido.valor_total)}</TableCell>
         <TableCell>{pedido.forma_pagamento}</TableCell>
         <TableCell>
-          <Button 
-            variant="contained"
-            color="primary"
-            onClick={() => onEdit(pedido.id)}
-            sx={{ minWidth: 100 }}
-          >
-            Editar
-          </Button>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button 
+              variant="contained"
+              color="primary"
+              onClick={() => onEdit(pedido.id)}
+              sx={{ minWidth: 100 }}
+            >
+              Editar
+            </Button>
+            <IconButton
+              color="error"
+              onClick={() => onDelete(pedido.id)}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Box>
         </TableCell>
       </TableRow>
       <TableRow>
@@ -98,6 +108,7 @@ const Row = ({ pedido, onEdit }) => {
 
 const ListaPedidos = () => {
   const [pedidos, setPedidos] = useState([]);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -112,11 +123,24 @@ const ListaPedidos = () => {
       setPedidos(response.data);
     } catch (error) {
       console.error('Erro ao carregar pedidos:', error);
+      setError('Erro ao carregar pedidos');
     }
   };
 
   const handleEdit = (id) => {
     navigate(`/pedidos/editar/${id}`);
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Tem certeza que deseja excluir este pedido?')) {
+      try {
+        await api.delete(`/pedidos/${id}`);
+        await carregarPedidos();
+      } catch (error) {
+        console.error('Erro ao excluir pedido:', error);
+        setError('Erro ao excluir pedido');
+      }
+    }
   };
 
   return (
@@ -141,6 +165,12 @@ const ListaPedidos = () => {
         </Button>
       </Box>
 
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+
       <TableContainer component={Paper} sx={{ mt: 2 }}>
         <Table>
           <TableHead>
@@ -150,7 +180,7 @@ const ListaPedidos = () => {
               <TableCell>Cliente</TableCell>
               <TableCell align="right">Valor Total</TableCell>
               <TableCell>Forma de Pagamento</TableCell>
-              <TableCell align="center" width={120}>Ações</TableCell>
+              <TableCell align="center" width={180}>Ações</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -159,6 +189,7 @@ const ListaPedidos = () => {
                 key={pedido.id} 
                 pedido={pedido} 
                 onEdit={handleEdit}
+                onDelete={handleDelete}
               />
             ))}
           </TableBody>

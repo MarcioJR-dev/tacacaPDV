@@ -13,7 +13,8 @@ import {
   Grid,
   Card,
   CardContent,
-  Alert
+  Alert,
+  IconButton
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import AddIcon from '@mui/icons-material/Add';
@@ -21,6 +22,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import PeopleIcon from '@mui/icons-material/People';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import MoneyOffIcon from '@mui/icons-material/MoneyOff';
+import DeleteIcon from '@mui/icons-material/Delete';
 import api from '../../services/api';
 
 const Dashboard = () => {
@@ -86,13 +88,14 @@ const Dashboard = () => {
     }
   };
 
-  const handleExcluir = async (id) => {
+  const handleExcluirPedido = async (id) => {
     if (window.confirm('Tem certeza que deseja excluir este pedido?')) {
       try {
         await api.delete(`/pedidos/${id}`);
-        carregarDados();
+        await carregarDados();
       } catch (error) {
         console.error('Erro ao excluir pedido:', error);
+        setError('Erro ao excluir pedido');
       }
     }
   };
@@ -208,6 +211,7 @@ const Dashboard = () => {
                     <TableCell>Data</TableCell>
                     <TableCell align="right">Valor</TableCell>
                     <TableCell>Status</TableCell>
+                    <TableCell align="center">Ações</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -217,6 +221,15 @@ const Dashboard = () => {
                       <TableCell>{formatarData(pedido.data)}</TableCell>
                       <TableCell align="right">R$ {formatarValor(pedido.valor_total)}</TableCell>
                       <TableCell>{pedido.status}</TableCell>
+                      <TableCell align="center">
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => handleExcluirPedido(pedido.id)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
