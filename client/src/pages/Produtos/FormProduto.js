@@ -1,22 +1,49 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   Box,
   TextField,
   Button,
   Alert,
-  Grid
+  Grid,
+  Typography,
+  CircularProgress
 } from '@mui/material';
 import api from '../../services/api';
 
 const FormProduto = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const [loading, setLoading] = useState(false);
   const [produto, setProduto] = useState({
     nome: '',
     preco: '',
     descricao: ''
   });
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (id) {
+      carregarProduto();
+    }
+  }, [id]);
+
+  const carregarProduto = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get(`/produtos/${id}`);
+      setProduto({
+        nome: response.data.nome,
+        preco: response.data.preco,
+        descricao: response.data.descricao || ''
+      });
+    } catch (error) {
+      console.error('Erro ao carregar produto:', error);
+      setError('Erro ao carregar produto. Por favor, tente novamente.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -49,9 +76,14 @@ const FormProduto = () => {
 
       console.log('Enviando dados:', produtoParaEnviar);
       
-      const response = await api.post('/produtos', produtoParaEnviar);
-      console.log('Resposta do servidor:', response.data);
+      let response;
+      if (id) {
+        response = await api.patch(`/produtos/${id}`, produtoParaEnviar);
+      } else {
+        response = await api.post('/produtos', produtoParaEnviar);
+      }
       
+      console.log('Resposta do servidor:', response.data);
       navigate('/produtos');
     } catch (error) {
       console.error('Erro ao salvar produto:', error);
@@ -60,60 +92,74 @@ const FormProduto = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
-      <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Nome do Produto"
-            value={produto.nome}
-            onChange={(e) => setProduto({ ...produto, nome: e.target.value })}
-            required
-            error={error && !produto.nome.trim()}
-          />
+    <Box sx={{ mt: 2 }}>
+      <Typography variant="h5" gutterBottom>
+        {id ? 'Editar Produto' : 'Novo Produto'}
+      </Typography>
+
+      <Box component="form" onSubmit={handleSubmit}>
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+        <Grid container spacing={2}>
+          <Grid xs={12}>
+            <TextField
+              fullWidth
+              label="Nome do Produto"
+              value={produto.nome}
+              onChange={(e) => setProduto({ ...produto, nome: e.target.value })}
+              required
+              error={error && !produto.nome.trim()}
+            />
+          </Grid>
+          <Grid xs={12}>
+            <TextField
+              fullWidth
+              label="Preço"
+              type="number"
+              step="0.01"
+              value={produto.preco}
+              onChange={(e) => setProduto({ ...produto, preco: e.target.value })}
+              required
+              error={error && !produto.preco}
+              inputProps={{ min: 0 }}
+            />
+          </Grid>
+          <Grid xs={12}>
+            <TextField
+              fullWidth
+              label="Descrição"
+              value={produto.descricao}
+              onChange={(e) => setProduto({ ...produto, descricao: e.target.value })}
+              multiline
+              rows={4}
+            />
+          </Grid>
+          <Grid xs={12}>
+            <Button type="submit" variant="contained" color="primary">
+              {id ? 'Atualizar' : 'Salvar'}
+            </Button>
+            <Button 
+              variant="outlined" 
+              onClick={() => navigate('/produtos')}
+              sx={{ ml: 2 }}
+            >
+              Cancelar
+            </Button>
+          </Grid>
         </Grid>
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Preço"
-            type="number"
-            step="0.01"
-            value={produto.preco}
-            onChange={(e) => setProduto({ ...produto, preco: e.target.value })}
-            required
-            error={error && !produto.preco}
-            inputProps={{ min: 0 }}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Descrição"
-            value={produto.descricao}
-            onChange={(e) => setProduto({ ...produto, descricao: e.target.value })}
-            multiline
-            rows={4}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <Button type="submit" variant="contained" color="primary">
-            Salvar
-          </Button>
-          <Button 
-            variant="outlined" 
-            onClick={() => navigate('/produtos')}
-            sx={{ ml: 2 }}
-          >
-            Cancelar
-          </Button>
-        </Grid>
-      </Grid>
+      </Box>
     </Box>
   );
 };

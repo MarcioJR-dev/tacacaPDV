@@ -12,7 +12,7 @@ router.get('/:id', produtoController.buscarProduto);
 router.post('/', produtoController.criarProduto);
 
 // Atualizar produto
-router.put('/:id', produtoController.atualizarProduto);
+router.patch('/:id', produtoController.atualizarProduto);
 
 // Deletar produto
 router.delete('/:id', produtoController.excluirProduto);

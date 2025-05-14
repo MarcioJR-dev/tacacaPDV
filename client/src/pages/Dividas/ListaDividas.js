@@ -76,10 +76,10 @@ const ListaDividas = () => {
           <TableBody>
             {dividas.map((divida) => (
               <TableRow key={divida.id}>
-                <TableCell>{divida.Cliente?.nome}</TableCell>
+                <TableCell>{divida.cliente?.nome}</TableCell>
                 <TableCell>R$ {divida.valor}</TableCell>
                 <TableCell>{divida.status}</TableCell>
-                <TableCell>{divida.notasDivida}</TableCell>
+                <TableCell>{divida.descricao}</TableCell>
                 <TableCell>
                   <Button 
                     size="small" 

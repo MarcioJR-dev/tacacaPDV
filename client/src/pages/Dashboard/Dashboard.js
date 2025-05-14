@@ -46,17 +46,19 @@ const Dashboard = () => {
     try {
       console.log('Carregando dados do dashboard...');
       
-      // Carrega pedidos, clientes e produtos
-      const [pedidosRes, clientesRes, produtosRes] = await Promise.all([
+      // Carrega pedidos, clientes, produtos e dívidas
+      const [pedidosRes, clientesRes, produtosRes, dividasRes] = await Promise.all([
         api.get('/pedidos'),
         api.get('/clientes'),
-        api.get('/produtos')
+        api.get('/produtos'),
+        api.get('/dividas')
       ]);
 
       console.log('Dados carregados:', {
         pedidos: pedidosRes.data.length,
         clientes: clientesRes.data.length,
-        produtos: produtosRes.data.length
+        produtos: produtosRes.data.length,
+        dividas: dividasRes.data.length
       });
 
       setPedidosRecentes(pedidosRes.data.slice(0, 5)); // Últimos 5 pedidos
@@ -64,7 +66,7 @@ const Dashboard = () => {
         totalPedidos: pedidosRes.data.length,
         totalClientes: clientesRes.data.length,
         totalProdutos: produtosRes.data.length,
-        totalDividas: 0 // Temporariamente fixo em 0 até implementarmos a funcionalidade de dívidas
+        totalDividas: dividasRes.data.length
       });
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
