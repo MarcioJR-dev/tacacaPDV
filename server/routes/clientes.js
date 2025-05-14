@@ -53,4 +53,19 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// PATCH update client
+router.patch('/:id', async (req, res) => {
+  try {
+    const cliente = await Cliente.findByPk(req.params.id);
+    if (cliente) {
+      await cliente.update(req.body);
+      res.json(cliente);
+    } else {
+      res.status(404).json({ message: 'Cliente não encontrado' });
+    }
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 module.exports = router;
