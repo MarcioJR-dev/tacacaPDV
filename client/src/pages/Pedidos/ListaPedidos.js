@@ -40,7 +40,7 @@ const Row = ({ pedido, onEdit }) => {
           </IconButton>
         </TableCell>
         <TableCell>{new Date(pedido.data).toLocaleDateString()}</TableCell>
-        <TableCell>{pedido.Cliente?.nome || 'Cliente não encontrado'}</TableCell>
+        <TableCell>{pedido.cliente?.nome || 'Cliente não encontrado'}</TableCell>
         <TableCell>R$ {formatarValor(pedido.valor_total)}</TableCell>
         <TableCell>{pedido.forma_pagamento}</TableCell>
         <TableCell>
@@ -71,13 +71,13 @@ const Row = ({ pedido, onEdit }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {pedido.Produtos?.map((produto) => (
+                  {pedido.produtos?.map((produto) => (
                     <TableRow key={produto.id}>
                       <TableCell>{produto.nome}</TableCell>
-                      <TableCell align="center">{produto.PedidoProduto.quantidade}</TableCell>
+                      <TableCell align="center">{produto.pedido_produto.quantidade}</TableCell>
                       <TableCell align="right">R$ {formatarValor(produto.preco)}</TableCell>
                       <TableCell align="right">
-                        R$ {formatarValor(produto.preco * produto.PedidoProduto.quantidade)}
+                        R$ {formatarValor(produto.preco * produto.pedido_produto.quantidade)}
                       </TableCell>
                     </TableRow>
                   ))}

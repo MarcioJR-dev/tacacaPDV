@@ -169,7 +169,7 @@ const Dashboard = () => {
             <TableBody>
               {pedidosRecentes.map((pedido) => (
                 <TableRow key={pedido.id}>
-                  <TableCell>{pedido.Cliente?.nome}</TableCell>
+                  <TableCell>{pedido.cliente?.nome}</TableCell>
                   <TableCell>{new Date(pedido.data).toLocaleDateString()}</TableCell>
                   <TableCell align="right">R$ {formatarValor(pedido.valor_total)}</TableCell>
                   <TableCell>{pedido.forma_pagamento}</TableCell>
