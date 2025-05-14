@@ -28,7 +28,7 @@ app.use((err, req, res, next) => {
 // Sincronizar banco de dados e iniciar servidor
 const PORT = process.env.PORT || 3001;
 
-sequelize.sync({ force: true }).then(() => {
+sequelize.sync().then(() => {
   console.log('Banco de dados sincronizado');
   app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);

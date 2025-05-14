@@ -34,26 +34,41 @@ const Dashboard = () => {
 
   useEffect(() => {
     carregarDados();
+    
+    // Atualiza os dados a cada 30 segundos
+    const intervalo = setInterval(carregarDados, 30000);
+    
+    // Limpa o intervalo quando o componente for desmontado
+    return () => clearInterval(intervalo);
   }, []);
 
   const carregarDados = async () => {
     try {
-      const [pedidosRes, clientesRes, produtosRes, dividasRes] = await Promise.all([
+      console.log('Carregando dados do dashboard...');
+      
+      // Carrega pedidos, clientes e produtos
+      const [pedidosRes, clientesRes, produtosRes] = await Promise.all([
         api.get('/pedidos'),
         api.get('/clientes'),
-        api.get('/produtos'),
-        api.get('/dividas')
+        api.get('/produtos')
       ]);
+
+      console.log('Dados carregados:', {
+        pedidos: pedidosRes.data.length,
+        clientes: clientesRes.data.length,
+        produtos: produtosRes.data.length
+      });
 
       setPedidosRecentes(pedidosRes.data.slice(0, 5)); // Últimos 5 pedidos
       setResumo({
         totalPedidos: pedidosRes.data.length,
         totalClientes: clientesRes.data.length,
         totalProdutos: produtosRes.data.length,
-        totalDividas: dividasRes.data.length
+        totalDividas: 0 // Temporariamente fixo em 0 até implementarmos a funcionalidade de dívidas
       });
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
+      // Não atualiza o estado em caso de erro para manter os dados anteriores
     }
   };
 
@@ -80,7 +95,7 @@ const Dashboard = () => {
       </Typography>
 
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -93,7 +108,7 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -106,7 +121,7 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -119,7 +134,7 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
