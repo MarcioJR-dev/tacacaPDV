@@ -14,9 +14,14 @@ import {
   List,
   ListItem,
   ListItemText,
-  ListItemSecondaryAction
+  ListItemSecondaryAction,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
 import api from '../../services/api';
 
 const FormPedido = () => {
@@ -32,6 +37,13 @@ const FormPedido = () => {
   const [notasPedido, setNotasPedido] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [openModalCliente, setOpenModalCliente] = useState(false);
+  const [novoCliente, setNovoCliente] = useState({
+    nome: '',
+    endereco: '',
+    notas: '',
+    numero: ''
+  });
 
   // Carregar clientes e produtos
   useEffect(() => {
@@ -49,7 +61,7 @@ const FormPedido = () => {
       }
     };
     carregarDados();
-  }, []); // Array de dependências vazio para executar apenas uma vez
+  }, []);
 
   // Atualizar valor total quando produtos mudarem
   useEffect(() => {
@@ -125,6 +137,19 @@ const FormPedido = () => {
     }
   };
 
+  const handleCriarCliente = async () => {
+    try {
+      const response = await api.post('/clientes', novoCliente);
+      setClientes(prev => [...prev, response.data]);
+      setSelectedCliente(response.data.id);
+      setOpenModalCliente(false);
+      setNovoCliente({ nome: '', endereco: '', notas: '', numero: '' });
+    } catch (error) {
+      console.error('Erro ao criar cliente:', error);
+      setError('Erro ao criar cliente. Por favor, tente novamente.');
+    }
+  };
+
   return (
     <Container maxWidth="md">
       <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
@@ -141,20 +166,29 @@ const FormPedido = () => {
         <form onSubmit={handleSubmit}>
           <Grid container spacing={3}>
             <Grid item xs={12}>
-              <TextField
-                select
-                fullWidth
-                label="Cliente"
-                value={selectedCliente}
-                onChange={(e) => setSelectedCliente(e.target.value)}
-                required
-              >
-                {clientes.map((cliente) => (
-                  <MenuItem key={cliente.id} value={cliente.id}>
-                    {cliente.nome}
-                  </MenuItem>
-                ))}
-              </TextField>
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <TextField
+                  select
+                  fullWidth
+                  label="Cliente"
+                  value={selectedCliente}
+                  onChange={(e) => setSelectedCliente(e.target.value)}
+                  required
+                >
+                  {clientes.map((cliente) => (
+                    <MenuItem key={cliente.id} value={cliente.id}>
+                      {cliente.nome}
+                    </MenuItem>
+                  ))}
+                </TextField>
+                <Button
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                  onClick={() => setOpenModalCliente(true)}
+                >
+                  Novo Cliente
+                </Button>
+              </Box>
             </Grid>
 
             <Grid item xs={12}>
@@ -200,7 +234,9 @@ const FormPedido = () => {
                   </Grid>
                 </Grid>
               </Box>
+            </Grid>
 
+            <Grid item xs={12}>
               <List>
                 {selectedProdutos.map((item) => {
                   const produto = produtos.find(p => p.id === item.id);
@@ -282,6 +318,64 @@ const FormPedido = () => {
           </Grid>
         </form>
       </Paper>
+
+      {/* Modal de Novo Cliente */}
+      <Dialog open={openModalCliente} onClose={() => setOpenModalCliente(false)}>
+        <DialogTitle>Novo Cliente</DialogTitle>
+        <DialogContent>
+          <Box sx={{ pt: 2 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Número"
+                  value={novoCliente.numero}
+                  onChange={(e) => setNovoCliente({ ...novoCliente, numero: e.target.value })}
+                  placeholder="Número do cliente"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Nome"
+                  value={novoCliente.nome}
+                  onChange={(e) => setNovoCliente({ ...novoCliente, nome: e.target.value })}
+                  required
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Endereço"
+                  value={novoCliente.endereco}
+                  onChange={(e) => setNovoCliente({ ...novoCliente, endereco: e.target.value })}
+                  required
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Notas"
+                  multiline
+                  rows={3}
+                  value={novoCliente.notas}
+                  onChange={(e) => setNovoCliente({ ...novoCliente, notas: e.target.value })}
+                />
+              </Grid>
+            </Grid>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenModalCliente(false)}>Cancelar</Button>
+          <Button 
+            onClick={handleCriarCliente}
+            variant="contained"
+            disabled={!novoCliente.nome || !novoCliente.endereco}
+          >
+            Criar Cliente
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };
