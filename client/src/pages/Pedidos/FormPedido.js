@@ -219,13 +219,13 @@ const FormPedido = () => {
         )}
 
         <form onSubmit={handleSubmit}>
-          <Grid container spacing={3}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             {/* Seção de Cliente */}
-            <Grid item xs={12}>
+            <Box>
               <Typography variant="h6" gutterBottom>
                 Cliente
               </Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
                 <Autocomplete
                   value={clientes.find(c => c.id === selectedCliente) || null}
                   onChange={(event, newValue) => {
@@ -251,14 +251,14 @@ const FormPedido = () => {
                   Novo Cliente
                 </Button>
               </Box>
-            </Grid>
+            </Box>
 
             {/* Seção de Produtos */}
-            <Grid item xs={12}>
+            <Box>
               <Typography variant="h6" gutterBottom>
                 Produtos
               </Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
                 <Autocomplete
                   value={selectedProduto}
                   onChange={(event, newValue) => {
@@ -270,12 +270,11 @@ const FormPedido = () => {
                     <TextField
                       {...params}
                       label="Produto"
-                      fullWidth
                     />
                   )}
                   isOptionEqualToValue={(option, value) => option.id === value.id}
                 />
-                <Box sx={{ display: 'flex', gap: 2 }}>
+                <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
                   <TextField
                     type="number"
                     fullWidth
@@ -293,46 +292,51 @@ const FormPedido = () => {
                   </Button>
                 </Box>
               </Box>
-            </Grid>
+            </Box>
 
             {/* Lista de Produtos Selecionados */}
-            <Grid item xs={12}>
-              <List>
-                {selectedProdutos.map((item) => {
-                  const produto = produtos.find(p => p.id === item.id);
-                  return (
-                    <ListItem 
-                      key={item.id}
-                      sx={{ 
-                        borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
-                        '&:last-child': { borderBottom: 'none' }
-                      }}
-                    >
-                      <ListItemText
-                        primary={produto?.nome}
-                        secondary={`Quantidade: ${item.quantidade} - Total: R$ ${((produto?.preco || 0) * item.quantidade).toFixed(2)}`}
-                      />
-                      <ListItemSecondaryAction>
-                        <IconButton
-                          edge="end"
-                          aria-label="delete"
-                          onClick={() => handleRemoveProduto(item.id)}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </ListItemSecondaryAction>
-                    </ListItem>
-                  );
-                })}
-              </List>
-            </Grid>
+            <Box>
+              <Typography variant="h6" gutterBottom>
+                Produtos Selecionados
+              </Typography>
+              <Paper variant="outlined" sx={{ width: '100%' }}>
+                <List>
+                  {selectedProdutos.map((item) => {
+                    const produto = produtos.find(p => p.id === item.id);
+                    return (
+                      <ListItem 
+                        key={item.id}
+                        sx={{ 
+                          borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
+                          '&:last-child': { borderBottom: 'none' }
+                        }}
+                      >
+                        <ListItemText
+                          primary={produto?.nome}
+                          secondary={`Quantidade: ${item.quantidade} - Total: R$ ${((produto?.preco || 0) * item.quantidade).toFixed(2)}`}
+                        />
+                        <ListItemSecondaryAction>
+                          <IconButton
+                            edge="end"
+                            aria-label="delete"
+                            onClick={() => handleRemoveProduto(item.id)}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </ListItemSecondaryAction>
+                      </ListItem>
+                    );
+                  })}
+                </List>
+              </Paper>
+            </Box>
 
             {/* Seção de Pagamento */}
-            <Grid item xs={12}>
+            <Box>
               <Typography variant="h6" gutterBottom>
                 Pagamento
               </Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
                 <TextField
                   fullWidth
                   label="Valor Total"
@@ -358,10 +362,10 @@ const FormPedido = () => {
                   <MenuItem value="PIX">PIX</MenuItem>
                 </TextField>
               </Box>
-            </Grid>
+            </Box>
 
             {/* Observações */}
-            <Grid item xs={12}>
+            <Box>
               <Typography variant="h6" gutterBottom>
                 Observações
               </Typography>
@@ -373,35 +377,33 @@ const FormPedido = () => {
                 value={notasPedido}
                 onChange={(e) => setNotasPedido(e.target.value)}
               />
-            </Grid>
+            </Box>
 
             {/* Botões de Ação */}
-            <Grid item xs={12}>
-              <Box sx={{ 
-                display: 'flex', 
-                gap: 2, 
-                justifyContent: 'flex-end',
-                mt: 2
-              }}>
-                <Button
-                  variant="outlined"
-                  onClick={() => navigate('/pedidos')}
-                  disabled={loading}
-                  sx={{ minWidth: 120, height: 48 }}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  disabled={loading}
-                  sx={{ minWidth: 120, height: 48 }}
-                >
-                  {loading ? 'Salvando...' : 'Salvar'}
-                </Button>
-              </Box>
-            </Grid>
-          </Grid>
+            <Box sx={{ 
+              display: 'flex', 
+              gap: 2, 
+              justifyContent: 'flex-end',
+              mt: 2
+            }}>
+              <Button
+                variant="outlined"
+                onClick={() => navigate('/pedidos')}
+                disabled={loading}
+                sx={{ minWidth: 120, height: 48 }}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={loading}
+                sx={{ minWidth: 120, height: 48 }}
+              >
+                {loading ? 'Salvando...' : 'Salvar'}
+              </Button>
+            </Box>
+          </Box>
         </form>
       </Paper>
 
