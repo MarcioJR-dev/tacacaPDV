@@ -18,7 +18,8 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  Autocomplete
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -31,14 +32,16 @@ const FormPedido = () => {
   const [produtos, setProdutos] = useState([]);
   const [selectedCliente, setSelectedCliente] = useState('');
   const [selectedProdutos, setSelectedProdutos] = useState([]);
+  const [selectedProduto, setSelectedProduto] = useState(null);
   const [quantidade, setQuantidade] = useState(1);
-  const [selectedProduto, setSelectedProduto] = useState('');
   const [valorTotal, setValorTotal] = useState(0);
   const [formaPagamento, setFormaPagamento] = useState('Dinheiro');
   const [notasPedido, setNotasPedido] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [openModalCliente, setOpenModalCliente] = useState(false);
+  const [pesquisaProduto, setPesquisaProduto] = useState('');
+  const [produtosFiltrados, setProdutosFiltrados] = useState([]);
   const [novoCliente, setNovoCliente] = useState({
     nome: '',
     endereco: '',
@@ -94,6 +97,18 @@ const FormPedido = () => {
     carregarDados();
   }, []);
 
+  // Filtrar produtos baseado na pesquisa
+  useEffect(() => {
+    if (pesquisaProduto.trim() === '') {
+      setProdutosFiltrados(produtos);
+    } else {
+      const filtrados = produtos.filter(produto =>
+        produto.nome.toLowerCase().includes(pesquisaProduto.toLowerCase())
+      );
+      setProdutosFiltrados(filtrados);
+    }
+  }, [pesquisaProduto, produtos]);
+
   // Atualizar valor total quando produtos mudarem
   useEffect(() => {
     const total = selectedProdutos.reduce((acc, item) => {
@@ -107,22 +122,19 @@ const FormPedido = () => {
   const handleAddProduto = () => {
     if (!selectedProduto || quantidade <= 0) return;
 
-    const produto = produtos.find(p => p.id === selectedProduto);
-    if (!produto) return;
-
     setSelectedProdutos(prev => {
-      const existing = prev.find(p => p.id === selectedProduto);
+      const existing = prev.find(p => p.id === selectedProduto.id);
       if (existing) {
         return prev.map(p => 
-          p.id === selectedProduto 
+          p.id === selectedProduto.id 
             ? { ...p, quantidade: p.quantidade + quantidade }
             : p
         );
       }
-      return [...prev, { id: selectedProduto, quantidade }];
+      return [...prev, { id: selectedProduto.id, quantidade }];
     });
 
-    setSelectedProduto('');
+    setSelectedProduto(null);
     setQuantidade(1);
   };
 
@@ -208,8 +220,12 @@ const FormPedido = () => {
 
         <form onSubmit={handleSubmit}>
           <Grid container spacing={3}>
+            {/* Seção de Cliente */}
             <Grid item xs={12}>
-              <Box sx={{ display: 'flex', gap: 2 }}>
+              <Typography variant="h6" gutterBottom>
+                Cliente
+              </Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <TextField
                   select
                   fullWidth
@@ -228,63 +244,68 @@ const FormPedido = () => {
                   variant="outlined"
                   startIcon={<AddIcon />}
                   onClick={() => setOpenModalCliente(true)}
+                  sx={{ height: 48 }}
                 >
                   Novo Cliente
                 </Button>
               </Box>
             </Grid>
 
+            {/* Seção de Produtos */}
             <Grid item xs={12}>
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="h6" gutterBottom>
-                  Produtos
-                </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={6}>
+              <Typography variant="h6" gutterBottom>
+                Produtos
+              </Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Autocomplete
+                  value={selectedProduto}
+                  onChange={(event, newValue) => {
+                    setSelectedProduto(newValue);
+                  }}
+                  options={produtos}
+                  getOptionLabel={(option) => option ? `${option.nome} - R$ ${option.preco.toFixed(2)}` : ''}
+                  renderInput={(params) => (
                     <TextField
-                      select
-                      fullWidth
+                      {...params}
                       label="Produto"
-                      value={selectedProduto}
-                      onChange={(e) => setSelectedProduto(e.target.value)}
-                    >
-                      {produtos.map((produto) => (
-                        <MenuItem key={produto.id} value={produto.id}>
-                          {produto.nome} - R$ {produto.preco.toFixed(2)}
-                        </MenuItem>
-                      ))}
-                    </TextField>
-                  </Grid>
-                  <Grid item xs={3}>
-                    <TextField
-                      type="number"
                       fullWidth
-                      label="Quantidade"
-                      value={quantidade}
-                      onChange={(e) => setQuantidade(Number(e.target.value))}
-                      inputProps={{ min: 1 }}
                     />
-                  </Grid>
-                  <Grid item xs={3}>
-                    <Button
-                      variant="contained"
-                      onClick={handleAddProduto}
-                      fullWidth
-                      sx={{ height: '100%' }}
-                    >
-                      Adicionar
-                    </Button>
-                  </Grid>
-                </Grid>
+                  )}
+                  isOptionEqualToValue={(option, value) => option.id === value.id}
+                />
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                  <TextField
+                    type="number"
+                    fullWidth
+                    label="Quantidade"
+                    value={quantidade}
+                    onChange={(e) => setQuantidade(Number(e.target.value))}
+                    inputProps={{ min: 1 }}
+                  />
+                  <Button
+                    variant="contained"
+                    onClick={handleAddProduto}
+                    sx={{ minWidth: 120, height: 56 }}
+                  >
+                    Adicionar
+                  </Button>
+                </Box>
               </Box>
             </Grid>
 
+            {/* Lista de Produtos Selecionados */}
             <Grid item xs={12}>
               <List>
                 {selectedProdutos.map((item) => {
                   const produto = produtos.find(p => p.id === item.id);
                   return (
-                    <ListItem key={item.id}>
+                    <ListItem 
+                      key={item.id}
+                      sx={{ 
+                        borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
+                        '&:last-child': { borderBottom: 'none' }
+                      }}
+                    >
                       <ListItemText
                         primary={produto?.nome}
                         secondary={`Quantidade: ${item.quantidade} - Total: R$ ${((produto?.preco || 0) * item.quantidade).toFixed(2)}`}
@@ -304,32 +325,44 @@ const FormPedido = () => {
               </List>
             </Grid>
 
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Valor Total"
-                value={`R$ ${valorTotal.toFixed(2)}`}
-                InputProps={{ readOnly: true }}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField
-                select
-                fullWidth
-                label="Forma de Pagamento"
-                value={formaPagamento}
-                onChange={(e) => setFormaPagamento(e.target.value)}
-                required
-              >
-                <MenuItem value="Dinheiro">Dinheiro</MenuItem>
-                <MenuItem value="Cartão de Crédito">Cartão de Crédito</MenuItem>
-                <MenuItem value="Cartão de Débito">Cartão de Débito</MenuItem>
-                <MenuItem value="PIX">PIX</MenuItem>
-              </TextField>
-            </Grid>
-
+            {/* Seção de Pagamento */}
             <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom>
+                Pagamento
+              </Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <TextField
+                  fullWidth
+                  label="Valor Total"
+                  type="number"
+                  value={valorTotal}
+                  onChange={(e) => setValorTotal(Number(e.target.value))}
+                  InputProps={{
+                    startAdornment: <span>R$ </span>,
+                    inputProps: { min: 0, step: 0.01 }
+                  }}
+                />
+                <TextField
+                  select
+                  fullWidth
+                  label="Forma de Pagamento"
+                  value={formaPagamento}
+                  onChange={(e) => setFormaPagamento(e.target.value)}
+                  required
+                >
+                  <MenuItem value="Dinheiro">Dinheiro</MenuItem>
+                  <MenuItem value="Cartão de Crédito">Cartão de Crédito</MenuItem>
+                  <MenuItem value="Cartão de Débito">Cartão de Débito</MenuItem>
+                  <MenuItem value="PIX">PIX</MenuItem>
+                </TextField>
+              </Box>
+            </Grid>
+
+            {/* Observações */}
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom>
+                Observações
+              </Typography>
               <TextField
                 fullWidth
                 label="Observações"
@@ -340,12 +373,19 @@ const FormPedido = () => {
               />
             </Grid>
 
+            {/* Botões de Ação */}
             <Grid item xs={12}>
-              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+              <Box sx={{ 
+                display: 'flex', 
+                gap: 2, 
+                justifyContent: 'flex-end',
+                mt: 2
+              }}>
                 <Button
                   variant="outlined"
                   onClick={() => navigate('/pedidos')}
                   disabled={loading}
+                  sx={{ minWidth: 120, height: 48 }}
                 >
                   Cancelar
                 </Button>
@@ -353,6 +393,7 @@ const FormPedido = () => {
                   type="submit"
                   variant="contained"
                   disabled={loading}
+                  sx={{ minWidth: 120, height: 48 }}
                 >
                   {loading ? 'Salvando...' : 'Salvar'}
                 </Button>
@@ -363,57 +404,58 @@ const FormPedido = () => {
       </Paper>
 
       {/* Modal de Novo Cliente */}
-      <Dialog open={openModalCliente} onClose={() => setOpenModalCliente(false)}>
+      <Dialog 
+        open={openModalCliente} 
+        onClose={() => setOpenModalCliente(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Novo Cliente</DialogTitle>
         <DialogContent>
-          <Box sx={{ pt: 2 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Número"
-                  value={novoCliente.numero}
-                  onChange={(e) => setNovoCliente({ ...novoCliente, numero: e.target.value })}
-                  placeholder="Número do cliente"
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Nome"
-                  value={novoCliente.nome}
-                  onChange={(e) => setNovoCliente({ ...novoCliente, nome: e.target.value })}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Endereço"
-                  value={novoCliente.endereco}
-                  onChange={(e) => setNovoCliente({ ...novoCliente, endereco: e.target.value })}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Notas"
-                  multiline
-                  rows={3}
-                  value={novoCliente.notas}
-                  onChange={(e) => setNovoCliente({ ...novoCliente, notas: e.target.value })}
-                />
-              </Grid>
-            </Grid>
+          <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <TextField
+              fullWidth
+              label="Número"
+              value={novoCliente.numero}
+              onChange={(e) => setNovoCliente({ ...novoCliente, numero: e.target.value })}
+              placeholder="Número do cliente"
+            />
+            <TextField
+              fullWidth
+              label="Nome"
+              value={novoCliente.nome}
+              onChange={(e) => setNovoCliente({ ...novoCliente, nome: e.target.value })}
+              required
+            />
+            <TextField
+              fullWidth
+              label="Endereço"
+              value={novoCliente.endereco}
+              onChange={(e) => setNovoCliente({ ...novoCliente, endereco: e.target.value })}
+              required
+            />
+            <TextField
+              fullWidth
+              label="Notas"
+              multiline
+              rows={3}
+              value={novoCliente.notas}
+              onChange={(e) => setNovoCliente({ ...novoCliente, notas: e.target.value })}
+            />
           </Box>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenModalCliente(false)}>Cancelar</Button>
+        <DialogActions sx={{ p: 2 }}>
+          <Button 
+            onClick={() => setOpenModalCliente(false)}
+            sx={{ minWidth: 100 }}
+          >
+            Cancelar
+          </Button>
           <Button 
             onClick={handleCriarCliente}
             variant="contained"
             disabled={!novoCliente.nome || !novoCliente.endereco}
+            sx={{ minWidth: 100 }}
           >
             Criar Cliente
           </Button>
