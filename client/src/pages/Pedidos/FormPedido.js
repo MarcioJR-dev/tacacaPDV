@@ -226,20 +226,22 @@ const FormPedido = () => {
                 Cliente
               </Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <TextField
-                  select
-                  fullWidth
-                  label="Cliente"
-                  value={selectedCliente}
-                  onChange={(e) => setSelectedCliente(e.target.value)}
-                  required
-                >
-                  {clientes.map((cliente) => (
-                    <MenuItem key={cliente.id} value={cliente.id}>
-                      {cliente.nome}
-                    </MenuItem>
-                  ))}
-                </TextField>
+                <Autocomplete
+                  value={clientes.find(c => c.id === selectedCliente) || null}
+                  onChange={(event, newValue) => {
+                    setSelectedCliente(newValue ? newValue.id : '');
+                  }}
+                  options={clientes}
+                  getOptionLabel={(option) => option ? `${option.nome} - ${option.numero}` : ''}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Cliente"
+                      required
+                    />
+                  )}
+                  isOptionEqualToValue={(option, value) => option.id === value.id}
+                />
                 <Button
                   variant="outlined"
                   startIcon={<AddIcon />}
