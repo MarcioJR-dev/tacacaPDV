@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   Container,
   Paper,
@@ -26,6 +26,7 @@ import api from '../../services/api';
 
 const FormPedido = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
   const [clientes, setClientes] = useState([]);
   const [produtos, setProdutos] = useState([]);
   const [selectedCliente, setSelectedCliente] = useState('');
@@ -44,6 +45,36 @@ const FormPedido = () => {
     notas: '',
     numero: ''
   });
+
+  // Carregar dados do pedido se estiver editando
+  useEffect(() => {
+    const carregarPedido = async () => {
+      if (id) {
+        try {
+          const response = await api.get(`/pedidos/${id}`);
+          const pedido = response.data;
+          console.log('Dados do pedido carregados:', pedido);
+          
+          // Buscar dados completos do cliente
+          const clienteResponse = await api.get(`/clientes/${pedido.cliente_id}`);
+          console.log('Dados do cliente carregados:', clienteResponse.data);
+          
+          setSelectedCliente(pedido.cliente_id);
+          setFormaPagamento(pedido.forma_pagamento);
+          setNotasPedido(pedido.notas_pedido || '');
+          setSelectedProdutos(pedido.produtos.map(p => ({
+            id: p.id,
+            quantidade: p.pedido_produto.quantidade
+          })));
+          setValorTotal(pedido.valor_total);
+        } catch (error) {
+          console.error('Erro ao carregar pedido:', error);
+          setError('Erro ao carregar pedido. Por favor, tente novamente.');
+        }
+      }
+    };
+    carregarPedido();
+  }, [id]);
 
   // Carregar clientes e produtos
   useEffect(() => {
@@ -69,6 +100,7 @@ const FormPedido = () => {
       const produto = produtos.find(p => p.id === item.id);
       return acc + (produto?.preco || 0) * item.quantidade;
     }, 0);
+    console.log('Calculando novo valor total:', total);
     setValorTotal(total);
   }, [selectedProdutos, produtos]);
 
@@ -115,19 +147,30 @@ const FormPedido = () => {
       return;
     }
 
-    const pedidoData = {
-      cliente_id: selectedCliente,
-      valorTotal,
-      formaPagamento,
-      notasPedido,
-      produtos: selectedProdutos
-    };
-
-    console.log('Enviando dados do pedido:', pedidoData);
-
     try {
-      const response = await api.post('/pedidos', pedidoData);
-      console.log('Pedido criado com sucesso:', response.data);
+      // Formatar os produtos para o formato esperado pela API
+      const produtosFormatados = selectedProdutos.map(item => ({
+        id: item.id,
+        quantidade: item.quantidade
+      }));
+
+      const dadosPedido = {
+        cliente_id: selectedCliente,
+        valorTotal: valorTotal,
+        formaPagamento: formaPagamento,
+        notasPedido: notasPedido || '',
+        produtos: produtosFormatados
+      };
+
+      if (id) {
+        // Se tiver ID, atualiza o pedido existente
+        await api.patch(`/pedidos/${id}`, dadosPedido);
+        console.log('Pedido atualizado com sucesso');
+      } else {
+        // Se não tiver ID, cria um novo pedido
+        await api.post('/pedidos', dadosPedido);
+        console.log('Pedido criado com sucesso');
+      }
       navigate('/pedidos');
     } catch (error) {
       console.error('Erro ao salvar pedido:', error);
@@ -154,7 +197,7 @@ const FormPedido = () => {
     <Container maxWidth="md">
       <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
         <Typography variant="h4" gutterBottom>
-          Novo Pedido
+          {id ? 'Editar Pedido' : 'Novo Pedido'}
         </Typography>
 
         {error && (

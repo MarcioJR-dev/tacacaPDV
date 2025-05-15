@@ -29,13 +29,19 @@ const formatarValor = (valor) => {
 const Row = ({ pedido, onEdit, onDelete }) => {
   const [open, setOpen] = useState(false);
 
+  const toggleOpen = () => {
+    console.log('Dados do pedido:', pedido);
+    console.log('Dados do cliente:', pedido.cliente);
+    setOpen(prevOpen => !prevOpen);
+  };
+
   return (
     <>
       <TableRow>
         <TableCell>
           <IconButton
             size="small"
-            onClick={() => setOpen(!open)}
+            onMouseDown={toggleOpen}
             sx={{ color: 'primary.main' }}
           >
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
@@ -93,11 +99,28 @@ const Row = ({ pedido, onEdit, onDelete }) => {
                   ))}
                 </TableBody>
               </Table>
-              {pedido.notas_pedido && (
-                <Typography variant="subtitle2" sx={{ mt: 2, color: 'text.secondary' }}>
-                  Notas: {pedido.notas_pedido}
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="subtitle1" color="primary" gutterBottom>
+                  Informações do Cliente
                 </Typography>
-              )}
+                <Typography variant="body2">
+                  <strong>Nome:</strong> {pedido.cliente?.nome}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Número:</strong> {pedido.cliente?.numero}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Endereço:</strong> {pedido.cliente?.endereco}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Notas:</strong> {pedido.cliente?.notas}
+                </Typography>
+                {pedido.notas_pedido && (
+                  <Typography variant="subtitle2" sx={{ mt: 2, color: 'text.secondary' }}>
+                    <strong>Observações do Pedido:</strong> {pedido.notas_pedido}
+                  </Typography>
+                )}
+              </Box>
             </Box>
           </Collapse>
         </TableCell>
@@ -120,7 +143,33 @@ const ListaPedidos = () => {
       console.log('Carregando pedidos...');
       const response = await api.get('/pedidos');
       console.log('Pedidos carregados:', response.data);
-      setPedidos(response.data);
+      
+      // Buscar dados completos dos clientes e calcular valor total
+      const pedidosComClientes = await Promise.all(
+        response.data.map(async (pedido) => {
+          if (pedido.cliente?.id) {
+            try {
+              const clienteResponse = await api.get(`/clientes/${pedido.cliente.id}`);
+              // Calcular valor total baseado nos produtos
+              const valorTotal = pedido.produtos.reduce((total, produto) => {
+                return total + (produto.preco * produto.pedido_produto.quantidade);
+              }, 0);
+              
+              return {
+                ...pedido,
+                cliente: clienteResponse.data,
+                valor_total: valorTotal
+              };
+            } catch (error) {
+              console.error(`Erro ao buscar cliente ${pedido.cliente.id}:`, error);
+              return pedido;
+            }
+          }
+          return pedido;
+        })
+      );
+      
+      setPedidos(pedidosComClientes);
     } catch (error) {
       console.error('Erro ao carregar pedidos:', error);
       setError('Erro ao carregar pedidos');

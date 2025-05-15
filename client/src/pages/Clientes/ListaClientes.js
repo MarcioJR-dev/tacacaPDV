@@ -90,15 +90,19 @@ const ListaClientes = () => {
             <TableRow>
               <TableCell>Número</TableCell>
               <TableCell>Nome</TableCell>
-              <TableCell>Ações</TableCell>
+              <TableCell>Endereço</TableCell>
+              <TableCell>Notas</TableCell>
+              <TableCell align="center">Ações</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {clientes.map((cliente) => (
+            {clientesFiltrados.map((cliente) => (
               <TableRow key={cliente.id}>
                 <TableCell>{cliente.numero}</TableCell>
                 <TableCell>{cliente.nome}</TableCell>
-                <TableCell>
+                <TableCell>{cliente.endereco}</TableCell>
+                <TableCell>{cliente.notas}</TableCell>
+                <TableCell align="center">
                   <Button 
                     size="small" 
                     color="primary"
