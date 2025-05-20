@@ -18,15 +18,16 @@ import {
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import DeleteIcon from '@mui/icons-material/Delete';
-import api from '../../services/api';
+import PrintIcon from '@mui/icons-material/Print';
 import AddIcon from '@mui/icons-material/Add';
+import api from '../../services/api';
 
 const formatarValor = (valor) => {
   const valorNumerico = parseFloat(valor);
   return isNaN(valorNumerico) ? '0.00' : valorNumerico.toFixed(2);
 };
 
-const Row = ({ pedido, onEdit, onDelete }) => {
+const Row = ({ pedido, onEdit, onDelete, onPrint }) => {
   const [open, setOpen] = useState(false);
 
   const toggleOpen = () => {
@@ -61,6 +62,12 @@ const Row = ({ pedido, onEdit, onDelete }) => {
             >
               Editar
             </Button>
+            <IconButton
+              color="primary"
+              onClick={() => onPrint(pedido.id)}
+            >
+              <PrintIcon />
+            </IconButton>
             <IconButton
               color="error"
               onClick={() => onDelete(pedido.id)}
@@ -192,6 +199,15 @@ const ListaPedidos = () => {
     }
   };
 
+  const handlePrint = async (id) => {
+    try {
+      await api.post('/imprimir/gerar-txt', { pedidoId: id });
+    } catch (error) {
+      console.error('Erro ao imprimir pedido:', error);
+      setError('Erro ao imprimir pedido');
+    }
+  };
+
   return (
     <Box sx={{ p: 3 }}>
       <Box sx={{ 
@@ -239,6 +255,7 @@ const ListaPedidos = () => {
                 pedido={pedido} 
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                onPrint={handlePrint}
               />
             ))}
           </TableBody>

@@ -1,0 +1,23 @@
+--------------------------------
+       Tacacá Distribuidora
+     Rua João Scuissiato, 78
+         (41) 99720-3338
+    CNPJ: 53.953.479/0001-47
+
+--------------------------------
+(Entregar no endereço)
+{{endereco_cliente}}
+
+            (Pedido)
+ITEM (V.Unit)               Total
+
+{{itens_pedido}}
+TAXA DE ENTREGA             {{taxa_entrega}}
+
+---------------------------------
+TOTAL:                     {{valor_total}}
+
+             {{data_pedido}}
+   * Obrigado pela Preferencia! *
+           Volte Sempre!
+----------------------------------- 

@@ -12,12 +12,14 @@ const clientesRoutes = require('./routes/clientes');
 const pedidosRoutes = require('./routes/pedidos');
 const dividasRoutes = require('./routes/dividas');
 const produtosRoutes = require('./routes/produtos');
+const imprimirRoutes = require('./routes/imprimir');
 
 // Usar rotas
 app.use('/api/clientes', clientesRoutes);
 app.use('/api/pedidos', pedidosRoutes);
 app.use('/api/dividas', dividasRoutes);
 app.use('/api/produtos', produtosRoutes);
+app.use('/api/imprimir', imprimirRoutes);
 
 // Middleware de erro
 app.use((err, req, res, next) => {
