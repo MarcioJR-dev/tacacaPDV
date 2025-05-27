@@ -15,7 +15,8 @@ const ClienteForm = ({ onSave, clienteInicial = null }) => {
   const [cliente, setCliente] = useState({
     nome: clienteInicial?.nome || '',
     endereco: clienteInicial?.endereco || '',
-    notas: clienteInicial?.notas || ''
+    notas: clienteInicial?.notas || '',
+    taxa_entrega: clienteInicial?.taxa_entrega || ''
   });
 
   const [error, setError] = useState('');
@@ -62,72 +63,78 @@ const ClienteForm = ({ onSave, clienteInicial = null }) => {
         {clienteInicial ? 'Editar Cliente' : 'Novo Cliente'}
       </Typography>
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
-
-      <Box component="form" onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <TextField
               fullWidth
-              required
-              name="nome"
               label="Nome"
+              name="nome"
               value={cliente.nome}
               onChange={handleChange}
-              error={!!error && !cliente.nome}
-              helperText={!!error && !cliente.nome ? 'Nome é obrigatório' : ''}
+              required
             />
           </Grid>
           <Grid item xs={12}>
             <TextField
               fullWidth
-              required
-              name="endereco"
               label="Endereço"
+              name="endereco"
               value={cliente.endereco}
               onChange={handleChange}
-              error={!!error && !cliente.endereco}
-              helperText={!!error && !cliente.endereco ? 'Endereço é obrigatório' : ''}
             />
           </Grid>
           <Grid item xs={12}>
             <TextField
               fullWidth
-              multiline
-              rows={3}
-              name="notas"
-              label="Notas"
-              value={cliente.notas}
+              label="Taxa de Entrega"
+              name="taxa_entrega"
+              type="number"
+              value={cliente.taxa_entrega}
               onChange={handleChange}
+              InputProps={{
+                inputProps: { step: "0.01" }
+              }}
+              helperText="Deixe em branco para usar a taxa padrão"
             />
           </Grid>
           <Grid item xs={12}>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
+            <TextField
               fullWidth
-              disabled={loading}
-            >
-              {loading ? 'Salvando...' : (clienteInicial ? 'Atualizar' : 'Cadastrar')}
-            </Button>
+              label="Notas"
+              name="notas"
+              value={cliente.notas}
+              onChange={handleChange}
+              multiline
+              rows={4}
+            />
           </Grid>
         </Grid>
-      </Box>
+
+        {error && (
+          <Alert severity="error" sx={{ mt: 2 }}>
+            {error}
+          </Alert>
+        )}
+
+        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            disabled={loading}
+          >
+            {loading ? 'Salvando...' : 'Salvar'}
+          </Button>
+        </Box>
+      </form>
 
       <Snackbar
         open={success}
         autoHideDuration={6000}
         onClose={() => setSuccess(false)}
-      >
-        <Alert severity="success" onClose={() => setSuccess(false)}>
-          Cliente {clienteInicial ? 'atualizado' : 'cadastrado'} com sucesso!
-        </Alert>
-      </Snackbar>
+        message="Cliente salvo com sucesso!"
+      />
     </Paper>
   );
 };

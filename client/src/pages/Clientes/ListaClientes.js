@@ -91,6 +91,7 @@ const ListaClientes = () => {
               <TableCell>Número</TableCell>
               <TableCell>Nome</TableCell>
               <TableCell>Endereço</TableCell>
+              <TableCell align="right">Taxa de Entrega</TableCell>
               <TableCell>Notas</TableCell>
               <TableCell align="center">Ações</TableCell>
             </TableRow>
@@ -101,6 +102,9 @@ const ListaClientes = () => {
                 <TableCell>{cliente.numero}</TableCell>
                 <TableCell>{cliente.nome}</TableCell>
                 <TableCell>{cliente.endereco}</TableCell>
+                <TableCell align="right">
+                  {cliente.taxa_entrega ? `R$ ${parseFloat(cliente.taxa_entrega).toFixed(2)}` : 'R$ 0,00'}
+                </TableCell>
                 <TableCell>{cliente.notas}</TableCell>
                 <TableCell align="center">
                   <Button 

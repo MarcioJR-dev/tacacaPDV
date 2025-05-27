@@ -15,7 +15,8 @@ const EditarCliente = () => {
     numero: '',
     nome: '',
     endereco: '',
-    notas: ''
+    notas: '',
+    taxa_entrega: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
@@ -91,6 +92,19 @@ const EditarCliente = () => {
               label="Endereço"
               value={cliente.endereco}
               onChange={(e) => setCliente({ ...cliente, endereco: e.target.value })}
+            />
+          </Grid>
+          <Grid xs={12}>
+            <TextField
+              fullWidth
+              label="Taxa de Entrega"
+              type="number"
+              value={cliente.taxa_entrega}
+              onChange={(e) => setCliente({ ...cliente, taxa_entrega: e.target.value })}
+              InputProps={{
+                inputProps: { step: "0.01" }
+              }}
+              helperText="Deixe em branco para usar a taxa padrão (R$ 0,00)"
             />
           </Grid>
           <Grid xs={12}>

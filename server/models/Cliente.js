@@ -31,6 +31,11 @@ module.exports = (sequelize) => {
     notas: {
       type: DataTypes.TEXT,
       allowNull: true
+    },
+    taxa_entrega: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: true,
+      defaultValue: 0.00
     }
   }, {
     tableName: 'clientes',

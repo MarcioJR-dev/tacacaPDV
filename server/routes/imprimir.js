@@ -6,7 +6,10 @@ const { exec } = require('child_process');
 const { Pedido, Cliente, Produto } = require('../models');
 
 // Função para formatar valor com 2 casas decimais
-const formatarValor = (valor) => valor.toFixed(2).replace('.', ',');
+const formatarValor = (valor) => {
+    const valorNumerico = parseFloat(valor) || 0;
+    return valorNumerico.toFixed(2).replace('.', ',');
+};
 
 // Função para formatar item do pedido
 const formatarItem = (item) => {
@@ -71,8 +74,10 @@ router.post('/gerar-txt', async (req, res) => {
     CNPJ: 53.953.479/0001-47
 
 --------------------------------
-(Entregar no endereço)
-{{endereco_cliente}}
+CLIENTE: {{nome_cliente}}
+TELEFONE: {{telefone_cliente}}
+ENDEREÇO: {{endereco_cliente}}
+NOTAS: {{notas_cliente}}
 
             (Pedido)
 ITEM (V.Unit)               Total
@@ -101,8 +106,9 @@ TOTAL:                     {{valor_total}}
         const itensFormatados = pedido.produtos.map(formatarItem).join('\n');
         console.log('Itens formatados:', itensFormatados);
 
-        // Calcular taxa de entrega (exemplo: 15,00)
-        const taxaEntrega = 15.00;
+        // Usar taxa de entrega do cliente ou valor padrão
+        const taxaEntrega = pedido.cliente?.taxa_entrega || 0.00;
+        console.log('Taxa de entrega:', taxaEntrega);
 
         // Calcular valor total
         const valorTotal = pedido.produtos.reduce((total, produto) => {
@@ -119,16 +125,20 @@ TOTAL:                     {{valor_total}}
         }, 0);
 
         console.log('Valor total calculado:', valorTotal);
+        console.log('Valor total com taxa:', valorTotal + parseFloat(taxaEntrega));
 
         // Substituir variáveis no template
         console.log('Substituindo variáveis no template...');
         const data = new Date(pedido.data);
         
         const conteudo = template
+            .replace('{{nome_cliente}}', pedido.cliente?.nome || '')
+            .replace('{{telefone_cliente}}', pedido.cliente?.telefone || '')
             .replace('{{endereco_cliente}}', pedido.cliente?.endereco || '')
+            .replace('{{notas_cliente}}', pedido.cliente?.notas || '')
             .replace('{{itens_pedido}}', itensFormatados)
             .replace('{{taxa_entrega}}', formatarValor(taxaEntrega))
-            .replace('{{valor_total}}', formatarValor(valorTotal + taxaEntrega))
+            .replace('{{valor_total}}', formatarValor(valorTotal + parseFloat(taxaEntrega)))
             .replace('{{data_pedido}}', data.toLocaleDateString('pt-BR'));
 
         // Gerar nome do arquivo
