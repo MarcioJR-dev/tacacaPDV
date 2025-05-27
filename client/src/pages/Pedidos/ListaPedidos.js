@@ -204,7 +204,7 @@ const ListaPedidos = () => {
       console.log('Iniciando impressão do pedido:', id);
       const response = await api.post('/imprimir/gerar-txt', { pedidoId: id });
       console.log('Resposta da impressão:', response.data);
-      alert('O arquivo foi aberto no Bloco de Notas.\n\nPara imprimir:\n1. Pressione Ctrl+P\n2. Selecione sua impressora\n3. Clique em Imprimir');
+      alert('Pedido enviado para impressão com sucesso!');
     } catch (error) {
       console.error('Erro ao imprimir pedido:', error);
       setError(`Erro ao imprimir pedido: ${error.response?.data?.details || error.message}`);

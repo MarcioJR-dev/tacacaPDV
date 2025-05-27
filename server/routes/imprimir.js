@@ -145,27 +145,37 @@ TOTAL:                     {{valor_total}}
         await fs.writeFile(filePath, conteudo, 'utf8');
         console.log('Arquivo salvo com sucesso');
 
-        // Abrir no Notepad para impressão manual
-        console.log('Abrindo arquivo no Notepad...');
-        const cmdCommand = `cmd /c start notepad "${filePath}"`;
-        console.log('Comando CMD:', cmdCommand);
+        // Abrir no Notepad e imprimir automaticamente
+        console.log('Enviando para impressão...');
+        const printCommand = `cmd /c start /min notepad /p "${filePath}"`;
+        console.log('Comando de impressão:', printCommand);
         
-        exec(cmdCommand, (error, stdout, stderr) => {
+        exec(printCommand, (error, stdout, stderr) => {
             if (error) {
-                console.error('Erro ao abrir Notepad:', error);
+                console.error('Erro ao imprimir:', error);
                 console.error('Erro detalhado:', stderr);
                 return res.status(500).json({ 
-                    error: 'Erro ao abrir arquivo no Notepad',
+                    error: 'Erro ao imprimir',
                     details: error.message,
                     stderr: stderr
                 });
             }
             
-            console.log('Arquivo aberto no Notepad com sucesso');
+            console.log('Arquivo enviado para impressão com sucesso');
             console.log('Saída do comando:', stdout);
             
+            // Remover arquivo temporário após alguns segundos
+            setTimeout(async () => {
+                try {
+                    await fs.unlink(filePath);
+                    console.log('Arquivo temporário removido');
+                } catch (err) {
+                    console.error('Erro ao remover arquivo temporário:', err);
+                }
+            }, 5000);
+
             res.json({ 
-                message: 'Arquivo aberto no Notepad. Use Ctrl+P para imprimir.',
+                message: 'Arquivo enviado para impressão com sucesso',
                 filePath: filePath
             });
         });
