@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import theme from './theme';
-import Layout from './components/Layout/Layout';
+import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard/Dashboard';
 import ListaClientes from './pages/Clientes/ListaClientes';
 import NovoCliente from './pages/Clientes/NovoCliente';
